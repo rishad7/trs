@@ -40,7 +40,7 @@ ini_set("display_errors", 1);
         $flag = false;
 
         foreach ($json_array as $key => $value) {
-            if ($value['username'] == $username && $value['password'] == $password) {
+            if (strtolower(str_replace(' ', '', $value['username'])) == strtolower(str_replace(' ', '', $username)) && $value['password'] == $password) {
                 $flag = true;
                 $id = $value['id'];
                 break;
