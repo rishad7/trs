@@ -176,10 +176,10 @@ if (isset($_POST['download'])) {
                                             <thead class="bg-black">
                                                 <tr>
                                                     <th class="px-6 py-2 text-xs text-white">
-                                                        #
+                                                        User Id
                                                     </th>
                                                     <th class="px-6 py-2 text-xs text-white">
-                                                        User Id
+                                                        Username
                                                     </th>
                                                     <th class="px-6 py-2 text-xs text-white">
                                                         Phone no
@@ -199,15 +199,16 @@ if (isset($_POST['download'])) {
                                                 </tr>
                                             </thead>
                                             <tbody class="bg-white divide-y divide-gray-300">
-                                                <?php $i = 1;
-                                                foreach ($data as $d) { ?>
+                                                <?php foreach ($data as $d) { ?>
                                                     <tr class="text-center whitespace-nowrap">
-                                                        <td class="px-6 py-4 text-sm text-gray-500">
-                                                            <?= $i++ ?>
-                                                        </td>
                                                         <td class="px-6 py-4">
                                                             <div class="text-sm text-gray-900">
                                                                 <?= $d['user_id'] ?>
+                                                            </div>
+                                                        </td>
+                                                        <td class="px-6 py-4">
+                                                            <div class="text-sm text-gray-900">
+                                                                <?= $d['username'] ?>
                                                             </div>
                                                         </td>
                                                         <td class="px-6 py-4">
@@ -227,10 +228,12 @@ if (isset($_POST['download'])) {
                                                         </td>
                                                         <td class="px-6 py-4">
                                                             <select name="status" id="status">
-                                                                <option <?php if($d['status'] == 1) { ?>selected<?php } ?> value="1">1</option>
-                                                                <option <?php if($d['status'] == 2) { ?>selected<?php } ?> value="2">2</option>
-                                                                <option <?php if($d['status'] == 3) { ?>selected<?php } ?> value="3">3</option>
-                                                                <option <?php if($d['status'] == 4) { ?>selected<?php } ?> value="4">4</option>
+                                                                <option <?php if($d['status'] == "") { ?>selected<?php } ?> value="">Select an option</option>
+                                                                <option <?php if($d['status'] == "Account Created - Lion567") { ?>selected<?php } ?> value="Account Created - Lion567">Account Created - Lion567</option>
+                                                                <option <?php if($d['status'] == "Account Created - Topspin247") { ?>selected<?php } ?> value="Account Created - Topspin247">Account Created - Topspin247</option>
+                                                                <option <?php if($d['status'] == "Active / Existing Player") { ?>selected<?php } ?> value="Active / Existing Player">Active / Existing Player</option>
+                                                                <option <?php if($d['status'] == "Busy") { ?>selected<?php } ?> value="Busy">Busy</option>
+                                                                <option <?php if($d['status'] == "Call Back Later") { ?>selected<?php } ?> value="Call Back Later">Call Back Later</option>
                                                             </select>
                                                         </td>
                                                         <td class="px-6 py-4">
