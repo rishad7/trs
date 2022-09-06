@@ -27,17 +27,22 @@ if (is_array($json_array)) {
     $data = $json_array;
 }
 
+//print_r($data);
+
+
 $server = $_SERVER['SERVER_NAME'];
 $uri = $_SERVER['PHP_SELF'];
 $current_url = "http://" . $server . $uri;
 // $next_doc = $current_url . "?doc=" . $postfix + 1;
 
-if (isset($_POST['add']) && !empty($_POST['comment']) && isset($_POST['index'])) {
+if (isset($_POST['add']) && isset($_POST['index'])) {
 
     $index = $_POST['index'];
-    $comment = trim($_POST['comment']);
+    $comment = trim(htmlspecialchars($_POST['comment']));
+    $status = trim(htmlspecialchars($_POST['status']));
 
     $data[$index]['comment'] = $comment;
+    $data[$index]['status'] = $status;
 
     $new_json_string = json_encode($data);
     file_put_contents($file, $new_json_string);
@@ -199,56 +204,56 @@ if (isset($_POST['download'])) {
                                                 </tr>
                                             </thead>
                                             <tbody class="bg-white divide-y divide-gray-300">
-                                                <?php foreach ($data as $d) { ?>
-                                                    <tr class="text-center whitespace-nowrap">
-                                                        <td class="px-6 py-4">
-                                                            <div class="text-sm text-gray-900">
-                                                                <?= $d['user_id'] ?>
-                                                            </div>
-                                                        </td>
-                                                        <td class="px-6 py-4">
-                                                            <div class="text-sm text-gray-900">
-                                                                <?= $d['username'] ?>
-                                                            </div>
-                                                        </td>
-                                                        <td class="px-6 py-4">
-                                                            <div class="text-sm text-gray-500">
-                                                                <?= $d['phone_number'] ?>
-                                                            </div>
-                                                        </td>
-                                                        <td class="px-6 py-4">
-                                                            <div class="text-sm text-gray-500">
-                                                                <?= $d['last_amount'] ?>
-                                                            </div>
-                                                        </td>
-                                                        <td class="px-6 py-4">
-                                                            <div class="text-sm text-gray-500">
-                                                                <?= $d['last_used'] ?>
-                                                            </div>
-                                                        </td>
-                                                        <td class="px-6 py-4">
-                                                            <select name="status" id="status">
-                                                                <option <?php if($d['status'] == "") { ?>selected<?php } ?> value="">Select an option</option>
-                                                                <option <?php if($d['status'] == "Account Created - Lion567") { ?>selected<?php } ?> value="Account Created - Lion567">Account Created - Lion567</option>
-                                                                <option <?php if($d['status'] == "Account Created - Topspin247") { ?>selected<?php } ?> value="Account Created - Topspin247">Account Created - Topspin247</option>
-                                                                <option <?php if($d['status'] == "Active / Existing Player") { ?>selected<?php } ?> value="Active / Existing Player">Active / Existing Player</option>
-                                                                <option <?php if($d['status'] == "Busy") { ?>selected<?php } ?> value="Busy">Busy</option>
-                                                                <option <?php if($d['status'] == "Call Back Later") { ?>selected<?php } ?> value="Call Back Later">Call Back Later</option>
-                                                            </select>
-                                                        </td>
-                                                        <td class="px-6 py-4">
-                                                            <form class="form-signin flex items-center" role="form" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" method="post">
+                                                <?php $i = 0; foreach ($data as $d) { ?>
+                                                        <tr class="text-center whitespace-nowrap">
+                                                        <form class="form-signin flex items-center" role="form" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" method="post">
+                                                            <td class="px-6 py-4">
+                                                                <div class="text-sm text-gray-900">
+                                                                    <?= $d['user_id'] ?>
+                                                                </div>
+                                                            </td>
+                                                            <td class="px-6 py-4">
+                                                                <div class="text-sm text-gray-900">
+                                                                    <?= $d['username'] ?>
+                                                                </div>
+                                                            </td>
+                                                            <td class="px-6 py-4">
+                                                                <div class="text-sm text-gray-500">
+                                                                    <?= $d['phone_number'] ?>
+                                                                </div>
+                                                            </td>
+                                                            <td class="px-6 py-4">
+                                                                <div class="text-sm text-gray-500">
+                                                                    <?= $d['last_amount'] ?>
+                                                                </div>
+                                                            </td>
+                                                            <td class="px-6 py-4">
+                                                                <div class="text-sm text-gray-500">
+                                                                    <?= $d['last_used'] ?>
+                                                                </div>
+                                                            </td>
+                                                            <td class="px-6 py-4">
+                                                                <select name="status" id="status">
+                                                                    <option <?php if($d['status'] == "") { ?>selected<?php } ?> value="">Select an option</option>
+                                                                    <option <?php if($d['status'] == "Account Created - Lion567") { ?>selected<?php } ?> value="Account Created - Lion567">Account Created - Lion567</option>
+                                                                    <option <?php if($d['status'] == "Account Created - Topspin247") { ?>selected<?php } ?> value="Account Created - Topspin247">Account Created - Topspin247</option>
+                                                                    <option <?php if($d['status'] == "Active / Existing Player") { ?>selected<?php } ?> value="Active / Existing Player">Active / Existing Player</option>
+                                                                    <option <?php if($d['status'] == "Busy") { ?>selected<?php } ?> value="Busy">Busy</option>
+                                                                    <option <?php if($d['status'] == "Call Back Later") { ?>selected<?php } ?> value="Call Back Later">Call Back Later</option>
+                                                                </select>
+                                                            </td>
+                                                            <td class="px-6 py-4">
                                                                 <textarea id="comment" name="comment" rows="4" class="p-2 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 mr-1" placeholder="Add your comment here">
-                                                                    <?= $d['comment'] ?>
+                                                                    <?= htmlspecialchars($d['comment']) ?>
                                                                 </textarea>
-                                                                <input type="hidden" name="index" value="<?= $i - 2; ?>" />
+                                                                <input type="hidden" name="index" value="<?= $i; ?>" />
                                                                 <button type="submit" class="h-6 inline-block px-2 py-1 bg-blue-600 text-white font-medium text-xs leading-snug uppercase rounded shadow-md hover:bg-blue-700 hover:shadow-lg focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-800 active:shadow-lg transition duration-150 ease-in-out" name="add">
                                                                     Add
                                                                 </button>
-                                                            </form>
-                                                        </td>
-                                                    </tr>
-                                                <?php } ?>
+                                                            </td>
+                                                        </form>
+                                                        </tr>
+                                                <?php $i++; } ?>
                                             </tbody>
                                         </table>
                                     </div>
