@@ -19,24 +19,49 @@ if (!file_exists($file)) {
     exit();
 }
 
-$json_array = json_decode(file_get_contents($file), true);
+if (isset($_SESSION['data'])) {
+    $json_array = $_SESSION['data'];
+} else {
+    $json_array = json_decode(file_get_contents($file), true);
+}
 
 $data = array();
+$selected_data = [];
+$index = 0;
 
 if (is_array($json_array)) {
     $data = $json_array;
+    $_SESSION['data'] = $data;
+
+    foreach($data as $d) {
+        $selected_index = $index++;
+        if($d['status'] == '') {
+            $selected_data = $d;
+            break;
+        }
+    }
+
 }
-
-//print_r($data);
-
 
 $server = $_SERVER['SERVER_NAME'];
 $uri = $_SERVER['PHP_SELF'];
 $current_url = "http://" . $server . $uri;
 // $next_doc = $current_url . "?doc=" . $postfix + 1;
 
-if (isset($_POST['add']) && isset($_POST['index'])) {
+// if (isset($_POST['add']) && isset($_POST['index'])) {
 
+//     $index = $_POST['index'];
+//     $comment = trim(htmlspecialchars($_POST['comment']));
+//     $status = trim(htmlspecialchars($_POST['status']));
+
+//     $data[$index]['comment'] = $comment;
+//     $data[$index]['status'] = $status;
+
+//     $new_json_string = json_encode($data);
+//     file_put_contents($file, $new_json_string);
+// }
+
+if(isset($_POST['submit'])) {
     $index = $_POST['index'];
     $comment = trim(htmlspecialchars($_POST['comment']));
     $status = trim(htmlspecialchars($_POST['status']));
@@ -46,6 +71,19 @@ if (isset($_POST['add']) && isset($_POST['index'])) {
 
     $new_json_string = json_encode($data);
     file_put_contents($file, $new_json_string);
+
+    $_SESSION['data'] = $data;
+    $selected_data = [];
+    $index = 0;
+
+    foreach($data as $d) {
+        $selected_index = $index++;
+        if($d['status'] == '') {
+            $selected_data = $d;
+            break;
+        }
+    }
+
 }
 
 $is_download = false;
@@ -77,6 +115,12 @@ if (isset($_POST['download'])) {
     <style>
         #dataTable_filter {
             margin-bottom: 16px;
+        }
+        .text-area-div {
+            height: 180px;
+            background-color: white;
+            border: 1px solid #ECECEC;
+            border-radius: 28px;
         }
     </style>
 </head>
@@ -162,8 +206,8 @@ if (isset($_POST['download'])) {
                             <div class="bg-white shadow rounded-lg p-4 sm:p-6 xl:p-8 ">
                                 <div class="mb-4 flex items-center justify-between">
                                     <div>
-                                        <h3 class="text-xl font-bold text-gray-900 mb-2">List Heading</h3>
-                                        <span class="text-base font-normal text-gray-500">List short discription</span>
+                                        <h3 class="text-xl font-bold text-gray-900 mb-2">User Details</h3>
+                                        <!-- <span class="text-base font-normal text-gray-500">List short discription</span> -->
                                     </div>
                                     <!-- <div class="flex-shrink-0">
                                         <a href="<?= $next_doc ?>" class="text-sm font-medium text-cyan-600 hover:bg-gray-100 rounded-lg p-2">Next doc</a>
@@ -175,7 +219,82 @@ if (isset($_POST['download'])) {
                                         </button>
                                     </form> -->
                                 </div>
-                                <div class="w-full">
+
+                                <form class="w-full" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" method="post">
+                                    <div class="flex flex-row flex-wrap">
+                                        <div class="w-full xs:w-1/2 sm:w-1/3 px-4 mb-8">
+                                            <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="view-userid">
+                                                User Id
+                                            </label>
+                                            <div id="view-userid" class="h-12 appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded flex items-center px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
+                                                <?= $selected_data['user_id'] ?>
+                                            </div>
+                                        </div>
+                                        <div class="w-full xs:w-1/2 sm:w-1/3 px-4 mb-8">
+                                            <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="view-username">
+                                                Username
+                                            </label>
+                                            <div id="view-username" class="h-12 appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded flex items-center px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
+                                                <?= $selected_data['username'] ?>
+                                            </div>
+                                        </div>
+                                        <div class="w-full xs:w-1/2 sm:w-1/3 px-4 mb-8">
+                                            <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="view-phone">
+                                                Phone number
+                                            </label>
+                                            <div id="view-phone" class="h-12 appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded flex items-center px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
+                                                <?= $selected_data['phone_number'] ?>
+                                            </div>
+                                        </div>
+                                        <div class="w-full xs:w-1/2 sm:w-1/3 px-4 mb-8">
+                                            <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="view-lastamount">
+                                                Last amount
+                                            </label>
+                                            <div id="view-lastamount" class="h-12 appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded flex items-center px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
+                                                <?= $selected_data['last_amount'] ?>
+                                            </div>
+                                        </div>
+                                        <div class="w-full xs:w-1/2 sm:w-1/3 px-4 mb-8">
+                                            <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="view-lastused">
+                                                Last used
+                                            </label>
+                                            <div id="view-lastused" class="h-12 appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded flex items-center px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
+                                                <?= $selected_data['last_used'] ?>
+                                            </div>
+                                        </div>
+                                        <div class="w-full xs:w-1/2 sm:w-1/3 px-4 mb-8">
+                                            <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="view-status">
+                                                Status
+                                            </label>
+                                            <div class="relative">
+                                                <select name="status" id="status" class="block appearance-none w-full bg-gray-200 border border-gray-200 text-gray-700 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="grid-state">
+                                                    <option value=""><?= $selected_data['status'] == '' ? 'Select an option' : $selected_data['status']; ?></option>
+                                                    <option>Account Created - Lion567</option>
+                                                    <option>Account Created - Topspin247</option>
+                                                </select>
+                                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                                                    <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                        <div class="w-full px-4 mb-8">
+                                            <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="view-comment">
+                                                Add Comment
+                                            </label>
+                                            <div class="text-area-div p-4">
+                                                <textarea id="view-comment" name="comment" class="h-full w-full text-sm outline-none resize-none" placeholder="Add your comment"><?= $selected_data['comment'] ?></textarea>
+                                            </div>
+                                        </div>
+                                        <div class="w-full flex justify-center">
+                                            <input type="hidden" name="index" value="<?= $selected_index; ?>" />
+                                            <button type="submit" name="submit" value="submit" class="focus:outline-none text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800">Submit</button>
+                                        </div>
+                                    </div>
+                                </form>
+
+
+                                <!-- <div class="w-full">
                                     <div class="p-8 border-b border-gray-200 shadow">
                                         <table class="divide-y divide-gray-300" id="dataTable">
                                             <thead class="bg-black">
@@ -257,7 +376,7 @@ if (isset($_POST['download'])) {
                                             </tbody>
                                         </table>
                                     </div>
-                                </div>
+                                </div> -->
                             </div>
                         </div>
                     </div>
