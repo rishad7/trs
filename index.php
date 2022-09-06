@@ -2,11 +2,6 @@
 require('header.php');
 ?>
 
-<?
-error_reporting(E_ALL);
-ini_set("display_errors", 1);
-?>
-
 <!DOCTYPE html lang="en-US">
 <html>
 
@@ -38,11 +33,13 @@ ini_set("display_errors", 1);
         $username = $_POST['username'];
         $password = $_POST['password'];
         $flag = false;
+        $doc_name = "";
 
         foreach ($json_array as $key => $value) {
             if (strtolower(str_replace(' ', '', $value['username'])) == strtolower(str_replace(' ', '', $username)) && $value['password'] == $password) {
                 $flag = true;
                 $id = $value['id'];
+                $doc_name = $value['doc_name'];
                 break;
             }
         }
@@ -52,6 +49,7 @@ ini_set("display_errors", 1);
             $_SESSION['valid'] = true;
             $_SESSION['timeout'] = time();
             $_SESSION['username'] = $username;
+            $_SESSION['doc_name'] = $doc_name;
             header('Location: home.php');
             exit();
         } else {

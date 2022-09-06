@@ -4,13 +4,15 @@ define('RESTRICTED', true);
 
 require('header.php');
 
-if (isset($_GET['doc'])) {
-    $postfix = $_GET['doc'];
-} else {
-    $postfix = 1;
-}
+// if (isset($_GET['doc'])) {
+//     $postfix = $_GET['doc'];
+// } else {
+//     $postfix = 1;
+// }
 
-$file = "./data/doc" . $postfix . ".json";
+$doc_name = $_SESSION['doc_name'];
+
+$file = "./data/" . $doc_name;
 
 if (!file_exists($file)) {
     header('Location: home.php');
@@ -28,7 +30,30 @@ if (is_array($json_array)) {
 $server = $_SERVER['SERVER_NAME'];
 $uri = $_SERVER['PHP_SELF'];
 $current_url = "http://" . $server . $uri;
-$next_doc = $current_url . "?doc=" . $postfix + 1;
+// $next_doc = $current_url . "?doc=" . $postfix + 1;
+
+if (isset($_POST['add']) && !empty($_POST['comment']) && isset($_POST['index'])) {
+
+    $index = $_POST['index'];
+    $comment = trim($_POST['comment']);
+
+    $data[$index]['comment'] = $comment;
+
+    $new_json_string = json_encode($data);
+    file_put_contents($file, $new_json_string);
+}
+
+$is_download = false;
+
+if (isset($_POST['download'])) {
+    $csv = './export/download.csv';
+    $file_pointer = fopen($csv, 'w');
+    foreach($data as $i){
+        fputcsv($file_pointer, $i);
+    }
+    fclose($file_pointer);
+    $is_download = true;
+}
 
 ?>
 
@@ -135,13 +160,16 @@ $next_doc = $current_url . "?doc=" . $postfix + 1;
                                         <h3 class="text-xl font-bold text-gray-900 mb-2">List Heading</h3>
                                         <span class="text-base font-normal text-gray-500">List short discription</span>
                                     </div>
-                                    <div class="flex-shrink-0">
+                                    <!-- <div class="flex-shrink-0">
                                         <a href="<?= $next_doc ?>" class="text-sm font-medium text-cyan-600 hover:bg-gray-100 rounded-lg p-2">Next doc</a>
-                                    </div>
+                                    </div> -->
+                                    <form class="form-signin flex items-center" role="form" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" method="post">
+                                        <button name="download" value="download" type="submit" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded inline-flex items-center">
+                                            <svg class="fill-current w-4 h-4 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M13 8V2H7v6H2l8 8 8-8h-5zM0 18h20v2H0v-2z"/></svg>
+                                            <span>Download</span>
+                                        </button>
+                                    </form>
                                 </div>
-
-
-
                                 <div class="w-full">
                                     <div class="p-8 border-b border-gray-200 shadow">
                                         <table class="divide-y divide-gray-300" id="dataTable">
@@ -161,6 +189,12 @@ $next_doc = $current_url . "?doc=" . $postfix + 1;
                                                     </th>
                                                     <th class="px-6 py-2 text-xs text-white">
                                                         Last used
+                                                    </th>
+                                                    <th class="px-6 py-2 text-xs text-white">
+                                                        Status
+                                                    </th>
+                                                    <th class="px-6 py-2 text-xs text-white">
+                                                        Add comment
                                                     </th>
                                                 </tr>
                                             </thead>
@@ -191,117 +225,31 @@ $next_doc = $current_url . "?doc=" . $postfix + 1;
                                                                 <?= $d['last_used'] ?>
                                                             </div>
                                                         </td>
+                                                        <td class="px-6 py-4">
+                                                            <select name="status" id="status">
+                                                                <option <?php if($d['status'] == 1) { ?>selected<?php } ?> value="1">1</option>
+                                                                <option <?php if($d['status'] == 2) { ?>selected<?php } ?> value="2">2</option>
+                                                                <option <?php if($d['status'] == 3) { ?>selected<?php } ?> value="3">3</option>
+                                                                <option <?php if($d['status'] == 4) { ?>selected<?php } ?> value="4">4</option>
+                                                            </select>
+                                                        </td>
+                                                        <td class="px-6 py-4">
+                                                            <form class="form-signin flex items-center" role="form" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" method="post">
+                                                                <textarea id="comment" name="comment" rows="4" class="p-2 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 mr-1" placeholder="Add your comment here">
+                                                                    <?= $d['comment'] ?>
+                                                                </textarea>
+                                                                <input type="hidden" name="index" value="<?= $i - 2; ?>" />
+                                                                <button type="submit" class="h-6 inline-block px-2 py-1 bg-blue-600 text-white font-medium text-xs leading-snug uppercase rounded shadow-md hover:bg-blue-700 hover:shadow-lg focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-800 active:shadow-lg transition duration-150 ease-in-out" name="add">
+                                                                    Add
+                                                                </button>
+                                                            </form>
+                                                        </td>
                                                     </tr>
                                                 <?php } ?>
                                             </tbody>
                                         </table>
                                     </div>
                                 </div>
-
-
-
-                                <!-- <div class="flex flex-col mt-8">
-                                    <div class="overflow-x-auto rounded-lg">
-                                        <div class="align-middle inline-block min-w-full">
-                                            <div class="shadow overflow-hidden sm:rounded-lg">
-                                                <table class="min-w-full divide-y divide-gray-200">
-                                                    <thead class="bg-gray-50">
-                                                        <tr>
-                                                            <th scope="col" class="p-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                                Transaction
-                                                            </th>
-                                                            <th scope="col" class="p-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                                Date & Time
-                                                            </th>
-                                                            <th scope="col" class="p-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                                Amount
-                                                            </th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody class="bg-white">
-                                                        <tr>
-                                                            <td class="p-4 whitespace-nowrap text-sm font-normal text-gray-900">
-                                                                Payment from <span class="font-semibold">Bonnie Green</span>
-                                                            </td>
-                                                            <td class="p-4 whitespace-nowrap text-sm font-normal text-gray-500">
-                                                                Apr 23 ,2021
-                                                            </td>
-                                                            <td class="p-4 whitespace-nowrap text-sm font-semibold text-gray-900">
-                                                                $2300
-                                                            </td>
-                                                        </tr>
-                                                        <tr class="bg-gray-50">
-                                                            <td class="p-4 whitespace-nowrap text-sm font-normal text-gray-900 rounded-lg rounded-left">
-                                                                Payment refund to <span class="font-semibold">#00910</span>
-                                                            </td>
-                                                            <td class="p-4 whitespace-nowrap text-sm font-normal text-gray-500">
-                                                                Apr 23 ,2021
-                                                            </td>
-                                                            <td class="p-4 whitespace-nowrap text-sm font-semibold text-gray-900">
-                                                                -$670
-                                                            </td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td class="p-4 whitespace-nowrap text-sm font-normal text-gray-900">
-                                                                Payment failed from <span class="font-semibold">#087651</span>
-                                                            </td>
-                                                            <td class="p-4 whitespace-nowrap text-sm font-normal text-gray-500">
-                                                                Apr 18 ,2021
-                                                            </td>
-                                                            <td class="p-4 whitespace-nowrap text-sm font-semibold text-gray-900">
-                                                                $234
-                                                            </td>
-                                                        </tr>
-                                                        <tr class="bg-gray-50">
-                                                            <td class="p-4 whitespace-nowrap text-sm font-normal text-gray-900 rounded-lg rounded-left">
-                                                                Payment from <span class="font-semibold">Lana Byrd</span>
-                                                            </td>
-                                                            <td class="p-4 whitespace-nowrap text-sm font-normal text-gray-500">
-                                                                Apr 15 ,2021
-                                                            </td>
-                                                            <td class="p-4 whitespace-nowrap text-sm font-semibold text-gray-900">
-                                                                $5000
-                                                            </td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td class="p-4 whitespace-nowrap text-sm font-normal text-gray-900">
-                                                                Payment from <span class="font-semibold">Jese Leos</span>
-                                                            </td>
-                                                            <td class="p-4 whitespace-nowrap text-sm font-normal text-gray-500">
-                                                                Apr 15 ,2021
-                                                            </td>
-                                                            <td class="p-4 whitespace-nowrap text-sm font-semibold text-gray-900">
-                                                                $2300
-                                                            </td>
-                                                        </tr>
-                                                        <tr class="bg-gray-50">
-                                                            <td class="p-4 whitespace-nowrap text-sm font-normal text-gray-900 rounded-lg rounded-left">
-                                                                Payment from <span class="font-semibold">THEMESBERG LLC</span>
-                                                            </td>
-                                                            <td class="p-4 whitespace-nowrap text-sm font-normal text-gray-500">
-                                                                Apr 11 ,2021
-                                                            </td>
-                                                            <td class="p-4 whitespace-nowrap text-sm font-semibold text-gray-900">
-                                                                $560
-                                                            </td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td class="p-4 whitespace-nowrap text-sm font-normal text-gray-900">
-                                                                Payment from <span class="font-semibold">Lana Lysle</span>
-                                                            </td>
-                                                            <td class="p-4 whitespace-nowrap text-sm font-normal text-gray-500">
-                                                                Apr 6 ,2021
-                                                            </td>
-                                                            <td class="p-4 whitespace-nowrap text-sm font-semibold text-gray-900">
-                                                                $1437
-                                                            </td>
-                                                        </tr>
-                                                    </tbody>
-                                                </table>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div> -->
                             </div>
                         </div>
                     </div>
@@ -320,6 +268,16 @@ $next_doc = $current_url . "?doc=" . $postfix + 1;
 
         });
     </script>
+
+    <?php if ($is_download) { ?>
+        <script>
+            var anchor = document.createElement('a');
+            anchor.href = 'http://localhost/trs/export/download.csv';
+            anchor.download = 'download.csv';
+            document.body.appendChild(anchor);
+            anchor.click();
+        </script>
+    <?php } ?>
 
 </body>
 
