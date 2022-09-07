@@ -24,5 +24,8 @@
         if (e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) {
             return false;
         }
+        if (e.keyCode === 114 || (e.ctrlKey && e.keyCode === 70)) {
+            return false;
+        }
     }
 </script>
