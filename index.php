@@ -13,7 +13,7 @@ require('header.php');
     <link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet">
 </head>
 
-<body oncontextmenu="return false">
+<body oncontextmenu="return false" oncopy="return false" oncut="return false" onpaste="return false">
 
     <?php
     $msg = '';

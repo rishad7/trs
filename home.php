@@ -125,7 +125,7 @@ if (isset($_POST['download'])) {
     </style>
 </head>
 
-<body oncontextmenu="return false">
+<body oncontextmenu="return false" oncopy="return false" oncut="return false" onpaste="return false">
 
 
     <!-- This is an example component -->
@@ -273,9 +273,13 @@ if (isset($_POST['download'])) {
                                                             <option value=""><?= $selected_data['status'] == '' ? 'Select an option' : $selected_data['status']; ?></option>
                                                             <option value="Account Created - Lion567">Account Created - Lion567</option>
                                                             <option value="Account Created - Topspin247">Account Created - Topspin247</option>
+                                                            <option value="Account Created - King567">Account Created - King567</option>
                                                             <option value="Active / Existing Player">Active / Existing Player</option>
-                                                            <option value="Busy">Busy</option>
+                                                            <option value="User Busy">User Busy</option>
                                                             <option value="Call Back Later">Call Back Later</option>
+                                                            <option value="Ringing No Response">Ringing No Response</option>
+                                                            <option value="Switch Off">Switch Off</option>
+                                                            <option value="Call Disconnected">Call Disconnected</option>
                                                         </select>
                                                         <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
                                                             <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
