@@ -1,10 +1,17 @@
 <?php
 
-die("You don't have permission to access this page");
-
-ini_set('memory_limit', -1);
-error_reporting(E_ALL);
-ini_set("display_errors", 1);
+define("encryption_method", "AES-128-CBC");
+define("key", "Tr#tech#17");
+function encrypt($data) {
+    $key = key;
+    $plaintext = $data;
+    $ivlen = openssl_cipher_iv_length($cipher = encryption_method);
+    $iv = openssl_random_pseudo_bytes($ivlen);
+    $ciphertext_raw = openssl_encrypt($plaintext, $cipher, $key, $options = OPENSSL_RAW_DATA, $iv);
+    $hmac = hash_hmac('sha256', $ciphertext_raw, $key, $as_binary = true);
+    $ciphertext = base64_encode($iv . $hmac . $ciphertext_raw);
+    return $ciphertext;
+}
 
 // include the autoloader, so we can use PhpSpreadsheet
 require_once(__DIR__ . '/vendor/autoload.php');
@@ -54,10 +61,11 @@ foreach ($data as $key => $value) {
     }
 
     $doc_data[$i][$j]['user_id'] = $j + 1;
-    $doc_data[$i][$j]['username'] = $value[0];
-    $doc_data[$i][$j]['phone_number'] = $value[2];
+    $doc_data[$i][$j]['username'] = encrypt($value[0]);
+    $doc_data[$i][$j]['phone_number'] = encrypt($value[2]);
     $doc_data[$i][$j]['last_amount'] = "";
     $doc_data[$i][$j]['last_used'] = "";
+    $doc_data[$i][$j]['promotion'] = "";
     $doc_data[$i][$j]['status'] = "";
     $doc_data[$i][$j]['comment'] = "";
     $j++;

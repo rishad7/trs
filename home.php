@@ -1,6 +1,8 @@
 <?php
 
 define('RESTRICTED', true);
+define("encryption_method", "AES-128-CBC");
+define("key", "Tr#tech#17");
 
 require('header.php');
 
@@ -9,6 +11,22 @@ require('header.php');
 // } else {
 //     $postfix = 1;
 // }
+
+
+function decrypt($data) {
+    $key = key;
+    $c = base64_decode($data);
+    $ivlen = openssl_cipher_iv_length($cipher = encryption_method);
+    $iv = substr($c, 0, $ivlen);
+    $hmac = substr($c, $ivlen, $sha2len = 32);
+    $ciphertext_raw = substr($c, $ivlen + $sha2len);
+    $original_plaintext = openssl_decrypt($ciphertext_raw, $cipher, $key, $options = OPENSSL_RAW_DATA, $iv);
+    $calcmac = hash_hmac('sha256', $ciphertext_raw, $key, $as_binary = true);
+    if (hash_equals($hmac, $calcmac))
+    {
+        return $original_plaintext;
+    }
+}
 
 $doc_name = $_SESSION['doc_name'];
 
@@ -36,7 +54,14 @@ if (is_array($json_array)) {
     foreach($data as $d) {
         $selected_index = $index++;
         if($d['status'] == '') {
-            $selected_data = $d;
+            $selected_data['user_id'] = $d['user_id'];
+            $selected_data['username'] = decrypt($d['username']);
+            $selected_data['phone_number'] = decrypt($d['phone_number']);
+            $selected_data['last_amount'] = $d['last_amount'];
+            $selected_data['last_used'] = $d['last_used'];
+            $selected_data['promotion'] = $d['promotion'];
+            $selected_data['status'] = $d['status'];
+            $selected_data['comment'] = $d['comment'];
             break;
         }
     }
@@ -61,13 +86,15 @@ $current_url = "http://" . $server . $uri;
 //     file_put_contents($file, $new_json_string);
 // }
 
-if(isset($_POST['submit'])) {
+if(isset($_POST['submit']) && isset($_POST['status']) && $_POST['status'] != '') {
     $index = $_POST['index'];
     $comment = trim(htmlspecialchars($_POST['comment']));
     $status = trim(htmlspecialchars($_POST['status']));
+    $promotion = isset($_POST['promotion']) ? trim(htmlspecialchars($_POST['promotion'])) : '';
 
     $data[$index]['comment'] = $comment;
     $data[$index]['status'] = $status;
+    $data[$index]['promotion'] = $promotion;
 
     $new_json_string = json_encode($data);
     file_put_contents($file, $new_json_string);
@@ -79,7 +106,14 @@ if(isset($_POST['submit'])) {
     foreach($data as $d) {
         $selected_index = $index++;
         if($d['status'] == '') {
-            $selected_data = $d;
+            $selected_data['user_id'] = $d['user_id'];
+            $selected_data['username'] = decrypt($d['username']);
+            $selected_data['phone_number'] = decrypt($d['phone_number']);
+            $selected_data['last_amount'] = $d['last_amount'];
+            $selected_data['last_used'] = $d['last_used'];
+            $selected_data['promotion'] = $d['promotion'];
+            $selected_data['status'] = $d['status'];
+            $selected_data['comment'] = $d['comment'];
             break;
         }
     }
@@ -280,12 +314,28 @@ if (isset($_POST['download'])) {
                                                             <option value="Ringing No Response">Ringing No Response</option>
                                                             <option value="Switch Off">Switch Off</option>
                                                             <option value="Call Disconnected">Call Disconnected</option>
+                                                            <option value="Invalid Number">Invalid Number</option>
                                                         </select>
                                                         <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
                                                             <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
                                                         </div>
                                                     </div>
 
+                                                </div>
+                                                <div class="w-full px-4 mb-8">
+                                                    <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="view-comment">
+                                                        Promotion(Referal/Weekly bonus):
+                                                    </label>
+                                                    <div class="flex">
+                                                        <div class="mr-8">
+                                                            <input type="radio" id="yes" name="promotion" value="Yes">
+                                                            <label for="yes">Yes</label>
+                                                        </div>
+                                                        <div>
+                                                            <input type="radio" id="no" name="promotion" value="No">
+                                                            <label for="no">No</label>
+                                                        </div>
+                                                    </div>
                                                 </div>
                                                 <div class="w-full px-4 mb-8">
                                                     <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="view-comment">
