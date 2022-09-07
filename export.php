@@ -2,6 +2,10 @@
 
 die("You don't have permission to access this page");
 
+$permitted_chars = '0123456789abcdefghijklmnopqrstuvwxyz';
+
+
+
 define("encryption_method", "AES-128-CBC");
 define("key", "Tr#tech#17");
 function encrypt($data) {
@@ -47,7 +51,7 @@ foreach ($data as $key => $value) {
         
         $user_data[$i]['id'] = $i + 1;
         $user_data[$i]['username'] = strtolower(str_replace(' ', '', $value[1]));
-        $user_data[$i]['password'] = "123456";
+        $user_data[$i]['password'] = substr(str_shuffle($permitted_chars), 0, 10);
         $user_data[$i]['doc_name'] = "doc" . $i + 1 . ".json";
 
 
@@ -62,26 +66,26 @@ foreach ($data as $key => $value) {
 
     }
 
-    $doc_data[$i][$j]['user_id'] = $j + 1;
-    $doc_data[$i][$j]['username'] = encrypt($value[0]);
-    $doc_data[$i][$j]['phone_number'] = encrypt($value[2]);
-    $doc_data[$i][$j]['last_amount'] = "";
-    $doc_data[$i][$j]['last_used'] = "";
-    $doc_data[$i][$j]['promotion'] = "";
-    $doc_data[$i][$j]['status'] = "";
-    $doc_data[$i][$j]['comment'] = "";
-    $j++;
+    // $doc_data[$i][$j]['user_id'] = $j + 1;
+    // $doc_data[$i][$j]['username'] = encrypt($value[0]);
+    // $doc_data[$i][$j]['phone_number'] = encrypt($value[2]);
+    // $doc_data[$i][$j]['last_amount'] = "";
+    // $doc_data[$i][$j]['last_used'] = "";
+    // $doc_data[$i][$j]['promotion'] = "";
+    // $doc_data[$i][$j]['status'] = "";
+    // $doc_data[$i][$j]['comment'] = "";
+    // $j++;
 }
 
 
-$k = 1;
+// $k = 1;
 
-foreach($doc_data as $b) {
-    $doc_json_string = json_encode($b);
-    $doc_filename = "./data/doc" . $k . ".json";
-    file_put_contents($doc_filename, $doc_json_string);
-    $k++;
-}
+// foreach($doc_data as $b) {
+//     $doc_json_string = json_encode($b);
+//     $doc_filename = "./data/doc" . $k . ".json";
+//     file_put_contents($doc_filename, $doc_json_string);
+//     $k++;
+// }
 
 
 echo "<pre>";
