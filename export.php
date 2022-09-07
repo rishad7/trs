@@ -1,5 +1,7 @@
 <?php
 
+die("You don't have permission to access this page");
+
 define("encryption_method", "AES-128-CBC");
 define("key", "Tr#tech#17");
 function encrypt($data) {
