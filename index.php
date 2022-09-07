@@ -13,7 +13,7 @@ require('header.php');
     <link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet">
 </head>
 
-<body>
+<body oncontextmenu="return false">
 
     <?php
     $msg = '';
@@ -105,6 +105,9 @@ require('header.php');
         </div>
     </section>
 
+    <?php
+        require('footer.php');
+    ?>
 
 </body>
 

@@ -125,7 +125,7 @@ if (isset($_POST['download'])) {
     </style>
 </head>
 
-<body>
+<body oncontextmenu="return false">
 
 
     <!-- This is an example component -->
@@ -413,6 +413,10 @@ if (isset($_POST['download'])) {
             anchor.click();
         </script>
     <?php } ?>
+
+    <?php
+        require('footer.php');
+    ?>
 
 </body>
 
