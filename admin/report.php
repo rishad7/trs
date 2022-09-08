@@ -1,7 +1,104 @@
 <?php
 
 define('RESTRICTED', true);
+define("encryption_method", "AES-128-CBC");
+define("key", "Tr#tech#17");
+
 require('header.php');
+
+function decrypt($data) {
+    $key = key;
+    $c = base64_decode($data);
+    $ivlen = openssl_cipher_iv_length($cipher = encryption_method);
+    $iv = substr($c, 0, $ivlen);
+    $hmac = substr($c, $ivlen, $sha2len = 32);
+    $ciphertext_raw = substr($c, $ivlen + $sha2len);
+    $original_plaintext = openssl_decrypt($ciphertext_raw, $cipher, $key, $options = OPENSSL_RAW_DATA, $iv);
+    $calcmac = hash_hmac('sha256', $ciphertext_raw, $key, $as_binary = true);
+    if (hash_equals($hmac, $calcmac))
+    {
+        return $original_plaintext;
+    }
+}
+
+$users = [];
+$file = "../data/users.json";
+$json_array = json_decode(file_get_contents($file), true);
+
+if (is_array($json_array)) {
+    $users = $json_array;
+}
+
+$data = [];
+$report_data = [];
+$selected_agent = "";
+$user_id = "";
+$status = "";
+
+if(isset($_POST['submit']) && isset($_POST['agent']) && $_POST['agent'] != '') {
+    $user_id = $_POST['agent'];
+    $status = $_POST['status'];
+    $doc_file = "../data/doc" . $user_id . ".json";
+    
+    if (!file_exists($doc_file)) {
+        header('Location: home.php');
+        exit();
+    }
+
+    $data = json_decode(file_get_contents($doc_file), true);
+
+    $i = 0;
+
+    foreach($data as $d) {
+        if($status == '') {
+            $report_data[$i]['user_id'] = $d['user_id'];
+            $report_data[$i]['username'] = decrypt($d['username']);
+            $report_data[$i]['phone_number'] = decrypt($d['phone_number']);
+            $report_data[$i]['last_amount'] = $d['last_amount'];
+            $report_data[$i]['last_used'] = $d['last_used'];
+            $report_data[$i]['promotion'] = $d['promotion'];
+            $report_data[$i]['status'] = $d['status'];
+            $report_data[$i]['comment'] = $d['comment'];
+            $i++;
+        } else {
+            if($status == $d['status']) {
+                $report_data[$i]['user_id'] = $d['user_id'];
+                $report_data[$i]['username'] = decrypt($d['username']);
+                $report_data[$i]['phone_number'] = decrypt($d['phone_number']);
+                $report_data[$i]['last_amount'] = $d['last_amount'];
+                $report_data[$i]['last_used'] = $d['last_used'];
+                $report_data[$i]['promotion'] = $d['promotion'];
+                $report_data[$i]['status'] = $d['status'];
+                $report_data[$i]['comment'] = $d['comment'];
+                $i++;
+            }
+        }
+    }
+
+    $user_index = $user_id - 1;
+
+    $selected_agent = $users[$user_index]['username'];
+
+    $_SESSION['report_data'] = $report_data;
+    $_SESSION['report_name'] = $selected_agent;
+    $_SESSION['report_user_id'] = $user_id;
+    $_SESSION['report_user_status'] = $status;
+
+}
+
+$is_download = false;
+$report_name = "";
+
+if (isset($_POST['download'])) {
+    require('export_to_excel.php');
+    $is_download = true;
+    $report_name = $_SESSION['report_name'] . ".xlsx";
+    $download_url = "http://localhost/WC/trs/export/$report_name";
+    $selected_agent = $_SESSION['report_name'];
+    $user_id = $_SESSION['report_user_id'];
+    $status = $_SESSION['report_user_status'];
+    $report_data = $_SESSION['report_data'];
+}
 
 ?>
 
@@ -14,6 +111,14 @@ require('header.php');
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.25/css/jquery.dataTables.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.25/js/jquery.dataTables.js"></script>
+    <style>
+        #dataTable_filter {
+            margin-bottom: 16px;
+        }
+    </style>
 </head>
 
 <body oncontextmenu="return false" oncopy="return false" oncut="return false" onpaste="return false">
@@ -77,7 +182,7 @@ require('header.php');
                                 </li>
 
                                 <li>
-                                    <a href="report.php" class="text-base text-gray-900 font-normal rounded-lg hover:bg-gray-100 group transition duration-75 flex items-center p-2">
+                                    <a href="report.php" class="text-base text-gray-900 font-normal rounded-lg hover:bg-gray-100 bg-gray-100 group transition duration-75 flex items-center p-2">
                                         <svg class="w-6 h-6 text-gray-500 flex-shrink-0 group-hover:text-gray-900 transition duration-75" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"></path><path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"></path></svg>
                                         <span class="ml-3">Report</span>
                                     </a>
@@ -99,12 +204,167 @@ require('header.php');
             <div class="bg-gray-900 opacity-50 hidden fixed inset-0 z-10" id="sidebarBackdrop"></div>
                 <div id="main-content" class="h-full w-full bg-gray-50 relative overflow-y-auto lg:ml-64">
                     <main>
-                        
-                        <div>report page</div>
-                        
-                    </div>
+                        <div class="pt-6 px-4">
+                            <div class="w-full grid grid-cols-1 gap-4">
+                                <div class="bg-white shadow rounded-lg p-4 sm:p-6 xl:p-8 ">
+                                    <div class="mb-4 flex items-center justify-between">
+                                        <div>
+                                            <h3 class="text-xl font-bold text-gray-900 mb-2">Agent Report</h3>
+                                        </div>
+                                    </div>
+                                    <form class="w-full" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" method="post">
+                                        <div class="flex flex-row flex-wrap">
+                                            
+                                            <div class="w-full xs:w-1/2 sm:w-1/2 px-4 mb-8">
+                                                <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="agent">
+                                                    Select an agent
+                                                </label>
+                                                <div class="relative">
+                                                    <select name="agent" id="agent" class="block appearance-none w-full bg-gray-200 border border-gray-200 text-gray-700 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="grid-state">
+                                                        <option value="">Select an option</option>
+                                                        <?php foreach($users as $u) { ?>
+                                                            <option <?=$user_id == $u['id'] ? ' selected="selected"' : '';?> value="<?= $u['id'] ?>"><?= $u['username'] ?></option>
+                                                        <?php } ?>
+                                                    </select>
+                                                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                                                        <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
+                                                    </div>
+                                                </div>
+                                            </div>
 
-                </div>
+                                            <div class="w-full xs:w-1/2 sm:w-1/2 px-4 mb-8">
+                                                <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="status">
+                                                    Select a status
+                                                </label>
+                                                <div class="relative">
+                                                    <select name="status" id="status" class="block appearance-none w-full bg-gray-200 border border-gray-200 text-gray-700 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="grid-state">
+                                                        <option value="">All</option>
+                                                        <option <?=$status == "Account Created - Lion567" ? ' selected="selected"' : '';?> value="Account Created - Lion567">Account Created - Lion567</option>
+                                                        <option <?=$status == "Account Created - Topspin247" ? ' selected="selected"' : '';?> value="Account Created - Topspin247">Account Created - Topspin247</option>
+                                                        <option <?=$status == "Account Created - King567" ? ' selected="selected"' : '';?> value="Account Created - King567">Account Created - King567</option>
+                                                        <option <?=$status == "Active / Existing Player" ? ' selected="selected"' : '';?> value="Active / Existing Player">Active / Existing Player</option>
+                                                        <option <?=$status == "User Busy" ? ' selected="selected"' : '';?> value="User Busy">User Busy</option>
+                                                        <option <?=$status == "Call Back Later" ? ' selected="selected"' : '';?> value="Call Back Later">Call Back Later</option>
+                                                        <option <?=$status == "Ringing No Response" ? ' selected="selected"' : '';?> value="Ringing No Response">Ringing No Response</option>
+                                                        <option <?=$status == "Switch Off" ? ' selected="selected"' : '';?> value="Switch Off">Switch Off</option>
+                                                        <option <?=$status == "Call Disconnected" ? ' selected="selected"' : '';?> value="Call Disconnected">Call Disconnected</option>
+                                                        <option <?=$status == "Invalid Number" ? ' selected="selected"' : '';?> value="Invalid Number">Invalid Number</option>
+                                                    </select>
+                                                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                                                        <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="w-full flex justify-center">
+                                                <button type="submit" name="submit" value="submit" class="focus:outline-none text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800">View Report</button>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <?php if(count($report_data) > 0 || $user_id) { ?>
+                            <div class="pt-6 px-4">
+                                <div class="w-full grid grid-cols-1 gap-4">
+                                    <div class="bg-white shadow rounded-lg p-4 sm:p-6 xl:p-8 ">
+                                        <div class="mb-4 flex items-center justify-between">
+                                            <div>
+                                                <h3 class="text-xl font-bold text-gray-900 mb-2"><?= $selected_agent ?> Report</h3>
+                                            </div>
+                                            <form class="form-signin flex items-center" role="form" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" method="post">
+                                                <button name="download" value="download" type="submit" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded inline-flex items-center">
+                                                    <svg class="fill-current w-4 h-4 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M13 8V2H7v6H2l8 8 8-8h-5zM0 18h20v2H0v-2z"/></svg>
+                                                    <span>Download Report</span>
+                                                </button>
+                                            </form>
+                                        </div>
+                                        <?php if(count($report_data) > 0) { ?>
+                                            <div class="w-full">
+                                                <table class="divide-y divide-gray-300" id="dataTable">
+                                                    <thead class="bg-black">
+                                                        <tr>
+                                                            <th class="px-6 py-2 text-xs text-white">
+                                                                User Id
+                                                            </th>
+                                                            <th class="px-6 py-2 text-xs text-white">
+                                                                Username
+                                                            </th>
+                                                            <th class="px-6 py-2 text-xs text-white">
+                                                                Phone no
+                                                            </th>
+                                                            <th class="px-6 py-2 text-xs text-white">
+                                                                Last amount
+                                                            </th>
+                                                            <th class="px-6 py-2 text-xs text-white">
+                                                                Last used
+                                                            </th>
+                                                            <th class="px-6 py-2 text-xs text-white">
+                                                                Status
+                                                            </th>
+                                                            <th class="px-6 py-2 text-xs text-white">
+                                                                Comment
+                                                            </th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody class="bg-white divide-y divide-gray-300">
+                                                        <?php foreach ($report_data as $d) { ?>
+                                                                <tr class="text-center whitespace-nowrap">
+                                                                    <td class="px-6 py-4">
+                                                                        <div class="text-sm text-gray-900">
+                                                                            <?= $d['user_id'] ?>
+                                                                        </div>
+                                                                    </td>
+                                                                    <td class="px-6 py-4">
+                                                                        <div class="text-sm text-gray-900">
+                                                                            <?= $d['username'] ?>
+                                                                        </div>
+                                                                    </td>
+                                                                    <td class="px-6 py-4">
+                                                                        <div class="text-sm text-gray-500">
+                                                                            <?= $d['phone_number'] ?>
+                                                                        </div>
+                                                                    </td>
+                                                                    <td class="px-6 py-4">
+                                                                        <div class="text-sm text-gray-500">
+                                                                            <?= $d['last_amount'] ?>
+                                                                        </div>
+                                                                    </td>
+                                                                    <td class="px-6 py-4">
+                                                                        <div class="text-sm text-gray-500">
+                                                                            <?= $d['last_used'] ?>
+                                                                        </div>
+                                                                    </td>
+                                                                    <td class="px-6 py-4">
+                                                                        <div class="text-sm text-gray-900">
+                                                                            <?= $d['status'] ?>
+                                                                        </div>
+                                                                    </td>
+                                                                    <td class="px-6 py-4">
+                                                                        <div class="text-sm text-gray-900">
+                                                                            <?= $d['comment'] ?>
+                                                                        </div>
+                                                                    </td>
+                                                                </tr>
+                                                        <?php } ?>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        <?php } else { ?>
+                                            <div class="w-full">
+                                                <h1 class="text-2xl text-center">No results found!</h1>
+                                            </div>
+                                        <?php } ?>
+                                    </div>
+                                </div>
+                            </div>
+
+                        <?php } ?>
+
+
+                        
                     </main>
                     <p class="text-center text-sm text-gray-500 my-10">
                         &copy; 2022 <a href="#" class="hover:underline" target="_blank">TRS Technology LLC</a>. All rights reserved.
@@ -112,6 +372,21 @@ require('header.php');
                 </div>
         </div>
     </div>
+    <script>
+        $(document).ready(function() {
+            $('#dataTable').DataTable();
+
+        });
+    </script>
+    <?php if ($is_download) { ?>
+        <script>
+            var anchor = document.createElement('a');
+            anchor.href = '<?= $download_url ?>';
+            anchor.download = '<?= $report_name ?>';
+            document.body.appendChild(anchor);
+            anchor.click();
+        </script>
+    <?php } ?>
     <?php
         require('footer.php');
     ?>
