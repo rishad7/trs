@@ -310,6 +310,9 @@ if (isset($_POST['download'])) {
                                                                 Status
                                                             </th>
                                                             <th class="px-6 py-2 text-xs text-white">
+                                                                Promotion
+                                                            </th>
+                                                            <th class="px-6 py-2 text-xs text-white">
                                                                 Comment
                                                             </th>
                                                         </tr>
@@ -345,6 +348,11 @@ if (isset($_POST['download'])) {
                                                                     <td class="px-6 py-4">
                                                                         <div class="text-sm text-gray-900">
                                                                             <?= $d['status'] ?>
+                                                                        </div>
+                                                                    </td>
+                                                                    <td class="px-6 py-4">
+                                                                        <div class="text-sm text-gray-900">
+                                                                            <?= $d['promotion'] ?>
                                                                         </div>
                                                                     </td>
                                                                     <td class="px-6 py-4">
