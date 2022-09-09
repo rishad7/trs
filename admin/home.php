@@ -3,6 +3,30 @@
 define('RESTRICTED', true);
 require('header.php');
 
+$no_of_users = 0;
+$file = "../data/users.json";
+$json_array = json_decode(file_get_contents($file), true);
+
+if (is_array($json_array)) {
+    $no_of_users = count($json_array);
+}
+
+$total_calls_count = 0;
+$today_call_count = 0;
+$dashboard_info_file = "../data/dashboard_info.json";
+$json_dashboard_info_array = json_decode(file_get_contents($dashboard_info_file), true);
+
+if (is_array($json_dashboard_info_array)) {
+    $total_calls_count = $json_dashboard_info_array['total_call_count'];
+
+    $key_name = "today_call_count_" . date("Y_m_d");
+    $dashboard_key_array = array_keys($json_dashboard_info_array);
+
+    if(in_array($key_name, $dashboard_key_array)) {
+        $today_call_count = $json_dashboard_info_array[$key_name];
+    }
+}
+
 ?>
 
 <!DOCTYPE html lang="en-US">
@@ -104,53 +128,52 @@ require('header.php');
                                 <div class="bg-white shadow rounded-lg p-4 sm:p-6 xl:p-8 ">
                                     <div class="flex items-center">
                                         <div class="flex-shrink-0">
-                                            <span class="text-2xl sm:text-3xl leading-none font-bold text-gray-900">2,340</span>
-                                            <h3 class="text-base font-normal text-gray-500">New products this week</h3>
+                                            <span class="text-2xl sm:text-3xl leading-none font-bold text-gray-900"><?= $no_of_users ?></span>
+                                            <h3 class="text-base font-normal text-gray-500">Agents</h3>
                                         </div>
-                                        <div class="ml-5 w-0 flex items-center justify-end flex-1 text-green-500 text-base font-bold">
+                                        <!-- <div class="ml-5 w-0 flex items-center justify-end flex-1 text-green-500 text-base font-bold">
                                             14.6%
                                             <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                                                 <path fill-rule="evenodd" d="M5.293 7.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 5.414V17a1 1 0 11-2 0V5.414L6.707 7.707a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
                                             </svg>
-                                        </div>
+                                        </div> -->
                                     </div>
                                 </div>
                                 <div class="bg-white shadow rounded-lg p-4 sm:p-6 xl:p-8 ">
                                     <div class="flex items-center">
                                         <div class="flex-shrink-0">
-                                            <span class="text-2xl sm:text-3xl leading-none font-bold text-gray-900">5,355</span>
-                                            <h3 class="text-base font-normal text-gray-500">Visitors this week</h3>
+                                            <span class="text-2xl sm:text-3xl leading-none font-bold text-gray-900"><?= $total_calls_count ?></span>
+                                            <h3 class="text-base font-normal text-gray-500">Total calls</h3>
                                         </div>
-                                    <div class="ml-5 w-0 flex items-center justify-end flex-1 text-green-500 text-base font-bold">
+                                    <!-- <div class="ml-5 w-0 flex items-center justify-end flex-1 text-green-500 text-base font-bold">
                                         32.9%
-                                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                                        <path fill-rule="evenodd" d="M5.293 7.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 5.414V17a1 1 0 11-2 0V5.414L6.707 7.707a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
-                                    </svg>
+                                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                            <path fill-rule="evenodd" d="M5.293 7.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 5.414V17a1 1 0 11-2 0V5.414L6.707 7.707a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+                                        </svg>
+                                    </div> -->
                                 </div>
                             </div>
-                        </div>
-                        <div class="bg-white shadow rounded-lg p-4 sm:p-6 xl:p-8 ">
-                            <div class="flex items-center">
-                                <div class="flex-shrink-0">
-                                    <span class="text-2xl sm:text-3xl leading-none font-bold text-gray-900">385</span>
-                                    <h3 class="text-base font-normal text-gray-500">User signups this week</h3>
-                                </div>
-                                <div class="ml-5 w-0 flex items-center justify-end flex-1 text-red-500 text-base font-bold">
-                                    -2.7%
-                                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                                        <path fill-rule="evenodd" d="M14.707 12.293a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 111.414-1.414L9 14.586V3a1 1 0 012 0v11.586l2.293-2.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
-                                    </svg>
+                            <div class="bg-white shadow rounded-lg p-4 sm:p-6 xl:p-8 ">
+                                <div class="flex items-center">
+                                    <div class="flex-shrink-0">
+                                        <span class="text-2xl sm:text-3xl leading-none font-bold text-gray-900"><?= $today_call_count ?></span>
+                                        <h3 class="text-base font-normal text-gray-500">Today calls</h3>
+                                    </div>
+                                    <!-- <div class="ml-5 w-0 flex items-center justify-end flex-1 text-red-500 text-base font-bold">
+                                        -2.7%
+                                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                            <path fill-rule="evenodd" d="M14.707 12.293a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 111.414-1.414L9 14.586V3a1 1 0 012 0v11.586l2.293-2.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                                        </svg>
+                                    </div> -->
                                 </div>
                             </div>
                         </div>
                     </div>
-
-                </div>
-                    </main>
-                    <p class="text-center text-sm text-gray-500 my-10">
-                        &copy; 2022 <a href="#" class="hover:underline" target="_blank">TRS Technology LLC</a>. All rights reserved.
-                    </p>
-                </div>
+                </main>
+                <p class="text-center text-sm text-gray-500 my-10">
+                    &copy; 2022 <a href="#" class="hover:underline" target="_blank">TRS Technology LLC</a>. All rights reserved.
+                </p>
+            </div>
         </div>
     </div>
     <?php

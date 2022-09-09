@@ -97,7 +97,27 @@ if(isset($_POST['submit']) && isset($_POST['status']) && $_POST['status'] != '')
     $data[$index]['promotion'] = $promotion;
 
     $new_json_string = json_encode($data);
-    file_put_contents($file, $new_json_string);
+    $is_json_updated = file_put_contents($file, $new_json_string);
+
+    if($is_json_updated) {
+        $dashboard_info_file = "./data/dashboard_info.json";
+        $json_dashboard_info_array = json_decode(file_get_contents($dashboard_info_file), true);
+        if (is_array($json_dashboard_info_array)) {
+            $dashboard_info['total_call_count'] = $json_dashboard_info_array['total_call_count'] + 1;
+
+            $key_name = "today_call_count_" . date("Y_m_d");
+            $dashboard_key_array = array_keys($json_dashboard_info_array);
+
+            if(in_array($key_name, $dashboard_key_array)) {
+                $dashboard_info[$key_name] = $json_dashboard_info_array[$key_name] + 1;
+            } else {
+                $dashboard_info[$key_name] = 1;
+            }
+
+            $new_json_dashboard_info_string = json_encode($dashboard_info);
+            file_put_contents($dashboard_info_file, $new_json_dashboard_info_string);
+        }
+    }
 
     $_SESSION['data'] = $data;
     $selected_data = [];
