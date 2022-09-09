@@ -6,7 +6,8 @@ unset($_SESSION["admin_valid"]);
 unset($_SESSION["admin_timeout"]);
 unset($_SESSION["report_data"]);
 unset($_SESSION["report_name"]);
+unset($_SESSION["report_user_id"]);
+unset($_SESSION["report_user_status"]);
 
-echo 'You have cleaned session';
 header('Location: index.php');
 exit();

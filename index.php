@@ -50,6 +50,21 @@ require('header.php');
             $_SESSION['timeout'] = time();
             $_SESSION['username'] = $username;
             $_SESSION['doc_name'] = $doc_name;
+
+            $user_history_file = "./data/user_history.json";
+            $json_user_history_file_array = json_decode(file_get_contents($user_history_file), true);
+
+            $user_details['user_id'] = $_SESSION['id'];
+            $user_details['username'] = $_SESSION['username'];
+            $user_details['status'] = 'login';
+            $user_details['time'] = date('Y-m-d H:i:s');
+            $user_details['client_details'] = $_SERVER;
+
+            $json_user_history_file_array[] = $user_details;
+
+            $new_user_history_json_string = json_encode($json_user_history_file_array);
+            file_put_contents($user_history_file, $new_user_history_json_string);
+
             header('Location: home.php');
             exit();
         } else {
