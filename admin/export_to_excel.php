@@ -46,7 +46,8 @@ function convertDataToChartForm($data) {
     {
         if ($firstLine)
         {
-            $newData[] = array_keys($dataRow);
+            $excel_header = ['User Id', 'Username', 'Phone Number', 'Last Amount', 'Last Used', 'Promotion', 'Status', 'Comment'];
+            $newData[] = $excel_header;
             $firstLine = false;
         }
 
