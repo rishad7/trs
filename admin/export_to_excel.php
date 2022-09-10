@@ -56,6 +56,8 @@ function convertDataToChartForm($data, $report_type) {
             $firstLine = false;
         }
 
+        unset($dataRow['phone_number']);
+
         $newData[] = array_values($dataRow);
     }
 

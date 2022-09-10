@@ -54,7 +54,7 @@ if(isset($_POST['submit']) && isset($_POST['agent']) && $_POST['agent'] != '') {
         if($status == '') {
             $report_data[$i]['user_id'] = $d['user_id'];
             $report_data[$i]['username'] = decrypt($d['username']);
-            // $report_data[$i]['phone_number'] = decrypt($d['phone_number']);
+            $report_data[$i]['phone_number'] = decrypt($d['phone_number']);
             $report_data[$i]['last_amount'] = $d['last_amount'];
             $report_data[$i]['last_used'] = $d['last_used'];
             $report_data[$i]['promotion'] = $d['promotion'];
@@ -65,7 +65,7 @@ if(isset($_POST['submit']) && isset($_POST['agent']) && $_POST['agent'] != '') {
             if($status == $d['status']) {
                 $report_data[$i]['user_id'] = $d['user_id'];
                 $report_data[$i]['username'] = decrypt($d['username']);
-                // $report_data[$i]['phone_number'] = decrypt($d['phone_number']);
+                $report_data[$i]['phone_number'] = decrypt($d['phone_number']);
                 $report_data[$i]['last_amount'] = $d['last_amount'];
                 $report_data[$i]['last_used'] = $d['last_used'];
                 $report_data[$i]['promotion'] = $d['promotion'];
@@ -116,7 +116,7 @@ if (isset($_POST['download_all_users'])) {
             foreach($json_array as $ja) {
                 $ja['agent'] = getAgent($doc_name);
                 $ja['username'] = decrypt($ja['username']);
-                unset($ja['phone_number']);
+                $ja['phone_number'] = decrypt($ja['phone_number']);
                 $decrypted_data[] = $ja;
             }
 
