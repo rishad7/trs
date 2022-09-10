@@ -24,6 +24,7 @@ function decrypt($data) {
 $users = [];
 $file = "../data/users.json";
 $json_array = json_decode(file_get_contents($file), true);
+$_SESSION['json_users_array'] = $json_array;
 
 if (is_array($json_array)) {
     $users = $json_array;
@@ -90,6 +91,7 @@ $is_download = false;
 $report_name = "";
 
 if (isset($_POST['download'])) {
+    $_SESSION['report_type'] = "individual";
     require('export_to_excel.php');
     $is_download = true;
     $report_name = $_SESSION['report_name'] . ".xlsx";
@@ -112,6 +114,7 @@ if (isset($_POST['download_all_users'])) {
             $decrypted_data = [];
 
             foreach($json_array as $ja) {
+                $ja['agent'] = getAgent($doc_name);
                 $ja['username'] = decrypt($ja['username']);
                 $ja['phone_number'] = decrypt($ja['phone_number']);
                 $decrypted_data[] = $ja;
@@ -123,11 +126,24 @@ if (isset($_POST['download_all_users'])) {
 
     $_SESSION['report_name'] = "TRS_All_Users_Report";
     $_SESSION['report_data'] = $all_users_data;
+    $_SESSION['report_type'] = "all";
 
     require('export_to_excel.php');
     $is_download = true;
     $report_name = $_SESSION['report_name'] . ".xlsx";
     $download_url = "http://localhost/WC/trs/export/$report_name";
+}
+
+function getAgent($doc_name) {
+    $agent = "";
+    $json_users_array = $_SESSION['json_users_array'];
+    foreach($json_users_array as $user) {
+        if($user['doc_name'] == $doc_name) {
+            $agent = $user['username'];
+            break;
+        }
+    }
+    return $agent;
 }
 
 ?>

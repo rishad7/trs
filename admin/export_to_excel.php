@@ -2,6 +2,7 @@
 
 $export_data = $_SESSION['report_data'];
 $report_name = $_SESSION['report_name'];
+$report_type = $_SESSION['report_type'];
 
 require_once('../vendor/autoload.php');
 
@@ -16,7 +17,7 @@ $worksheet1 = new \PhpOffice\PhpSpreadsheet\Worksheet\Worksheet($mySpreadsheet, 
 $mySpreadsheet->addSheet($worksheet1, 0);
 
 // sheet 1 contains the birthdays of famous people.
-$sheet1Data = convertDataToChartForm($export_data);
+$sheet1Data = convertDataToChartForm($export_data, $report_type);
 
 $worksheet1->fromArray($sheet1Data);
 
@@ -38,7 +39,7 @@ $writer = new PhpOffice\PhpSpreadsheet\Writer\Xlsx($mySpreadsheet);
 $report_file_name = "../export/$report_name.xlsx";
 $writer->save($report_file_name);
 
-function convertDataToChartForm($data) {
+function convertDataToChartForm($data, $report_type) {
     $newData = array();
     $firstLine = true;
 
@@ -46,7 +47,11 @@ function convertDataToChartForm($data) {
     {
         if ($firstLine)
         {
-            $excel_header = ['User Id', 'Username', 'Phone Number', 'Last Amount', 'Last Used', 'Promotion', 'Status', 'Comment'];
+            if($report_type == 'all') {
+                $excel_header = ['User Id', 'Username', 'Phone Number', 'Last Amount', 'Last Used', 'Promotion', 'Status', 'Comment', 'Agent'];
+            } else {
+                $excel_header = ['User Id', 'Username', 'Phone Number', 'Last Amount', 'Last Used', 'Promotion', 'Status', 'Comment'];
+            }
             $newData[] = $excel_header;
             $firstLine = false;
         }
