@@ -100,6 +100,36 @@ if (isset($_POST['download'])) {
     $report_data = $_SESSION['report_data'];
 }
 
+if (isset($_POST['download_all_users'])) {
+
+    $all_users_data = [];
+    for($i = 1; $i <= 54; $i++) {
+        $doc_name = "doc" . $i . ".json";
+        $file = "../data/" . $doc_name;
+        $json_array = json_decode(file_get_contents($file), true);
+        if (is_array($json_array)) {
+
+            $decrypted_data = [];
+
+            foreach($json_array as $ja) {
+                $ja['username'] = decrypt($ja['username']);
+                $ja['phone_number'] = decrypt($ja['phone_number']);
+                $decrypted_data[] = $ja;
+            }
+
+            $all_users_data = array_merge($all_users_data, $decrypted_data);
+        }
+    }
+
+    $_SESSION['report_name'] = "TRS_All_Users_Report";
+    $_SESSION['report_data'] = $all_users_data;
+
+    require('export_to_excel.php');
+    $is_download = true;
+    $report_name = $_SESSION['report_name'] . ".xlsx";
+    $download_url = "http://localhost/WC/trs/export/$report_name";
+}
+
 ?>
 
 <!DOCTYPE html lang="en-US">
@@ -215,6 +245,16 @@ if (isset($_POST['download'])) {
             <div class="bg-gray-900 opacity-50 hidden fixed inset-0 z-10" id="sidebarBackdrop"></div>
                 <div id="main-content" class="h-full w-full bg-gray-50 relative overflow-y-auto lg:ml-64">
                     <main>
+
+                        <div class="pt-6 px-4 w-full flex justify-end">
+                                <form class="form-signin flex items-center" role="form" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" method="post">
+                                    <button name="download_all_users" value="download_all_users" type="submit" class="bg-yellow-400 hover:bg-yellow-500 text-white font-bold py-2 px-4 rounded inline-flex items-center">
+                                        <svg class="fill-current w-4 h-4 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M13 8V2H7v6H2l8 8 8-8h-5zM0 18h20v2H0v-2z"/></svg>
+                                        <span>Download All Users Report</span>
+                                    </button>
+                                </form>
+                        </div>
+
                         <div class="pt-6 px-4">
                             <div class="w-full grid grid-cols-1 gap-4">
                                 <div class="bg-white shadow rounded-lg p-4 sm:p-6 xl:p-8 ">
