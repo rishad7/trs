@@ -48,9 +48,9 @@ function convertDataToChartForm($data, $report_type) {
         if ($firstLine)
         {
             if($report_type == 'all') {
-                $excel_header = ['User Id', 'Username', 'Phone Number', 'Last Amount', 'Last Used', 'Promotion', 'Status', 'Comment', 'Agent'];
+                $excel_header = ['User Id', 'Username', 'Last Amount', 'Last Used', 'Promotion', 'Status', 'Comment', 'Agent'];
             } else {
-                $excel_header = ['User Id', 'Username', 'Phone Number', 'Last Amount', 'Last Used', 'Promotion', 'Status', 'Comment'];
+                $excel_header = ['User Id', 'Username', 'Last Amount', 'Last Used', 'Promotion', 'Status', 'Comment'];
             }
             $newData[] = $excel_header;
             $firstLine = false;
