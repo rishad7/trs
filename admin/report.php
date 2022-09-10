@@ -95,7 +95,7 @@ if (isset($_POST['download'])) {
     require('export_to_excel.php');
     $is_download = true;
     $report_name = $_SESSION['report_name'] . ".xlsx";
-    $download_url = "http://localhost/WC/trs/export/$report_name";
+    $download_url = BASE_URL . "/export/$report_name";
     $selected_agent = $_SESSION['report_name'];
     $user_id = $_SESSION['report_user_id'];
     $status = $_SESSION['report_user_status'];
@@ -131,7 +131,7 @@ if (isset($_POST['download_all_users'])) {
     require('export_to_excel.php');
     $is_download = true;
     $report_name = $_SESSION['report_name'] . ".xlsx";
-    $download_url = "http://localhost/WC/trs/export/$report_name";
+    $download_url = BASE_URL . "/export/$report_name";
 }
 
 function getAgent($doc_name) {
