@@ -286,12 +286,14 @@ if (isset($_POST['download'])) {
                                             <div>
                                                 <h3 class="text-xl font-bold text-gray-900 mb-2"><?= $selected_agent ?> Report</h3>
                                             </div>
-                                            <form class="form-signin flex items-center" role="form" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" method="post">
-                                                <button name="download" value="download" type="submit" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded inline-flex items-center">
-                                                    <svg class="fill-current w-4 h-4 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M13 8V2H7v6H2l8 8 8-8h-5zM0 18h20v2H0v-2z"/></svg>
-                                                    <span>Download Report</span>
-                                                </button>
-                                            </form>
+                                            <?php if(count($report_data) > 0) { ?>
+                                                <form class="form-signin flex items-center" role="form" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" method="post">
+                                                    <button name="download" value="download" type="submit" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded inline-flex items-center">
+                                                        <svg class="fill-current w-4 h-4 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M13 8V2H7v6H2l8 8 8-8h-5zM0 18h20v2H0v-2z"/></svg>
+                                                        <span>Download Report</span>
+                                                    </button>
+                                                </form>
+                                            <?php } ?>
                                         </div>
                                         <?php if(count($report_data) > 0) { ?>
                                             <div class="w-full">
