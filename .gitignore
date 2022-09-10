@@ -1,6 +1,7 @@
 composer.phar
 composer.json
 composer.lock
+/vendor/
 .DS_Store
 /data/
 /export/
